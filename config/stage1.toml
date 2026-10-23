@@ -1,0 +1,63 @@
+# Stage 1 Configuration
+# All windows, thresholds, tolerances, paths and tickers live here, not in code.
+
+[data]
+# Price data
+universe_etfs = ["SPY", "QQQ", "IWM", "DIA", "EFA", "EEM", "TLT", "IEF", "LQD", "HYG", "GLD", "SLV", "XLE", "XLF", "XLK", "XLV", "XLY", "XLP", "XLI", "XLU"]
+universe_stocks = ["AAPL", "MSFT", "AMZN", "GOOGL", "JPM", "JNJ", "XOM", "WMT", "PG", "KO", "PEP", "CVX", "LLY", "LOW", "CSCO", "INTC", "ORCL", "VZ", "HD", "MCD", "DIS", "BAC", "WFC", "CAT", "BA", "UNH", "TXN", "NKE", "COST", "AMGN"]
+# Combined universe (50 tickers)
+universe = ["SPY", "QQQ", "IWM", "DIA", "EFA", "EEM", "TLT", "IEF", "LQD", "HYG", "GLD", "SLV", "XLE", "XLF", "XLK", "XLV", "XLY", "XLP", "XLI", "XLU", "AAPL", "MSFT", "AMZN", "GOOGL", "JPM", "JNJ", "XOM", "WMT", "PG", "KO", "PEP", "CVX", "LLY", "LOW", "CSCO", "INTC", "ORCL", "VZ", "HD", "MCD", "DIS", "BAC", "WFC", "CAT", "BA", "UNH", "TXN", "NKE", "COST", "AMGN"]
+
+start_date = "2008-01-01"
+end_date = "2025-12-31"
+cache_dir = "data/raw_prices"
+
+[windows]
+in_sample_years = 3
+out_of_sample_years = 1
+purge_gap_years = 1
+min_in_market_days = 30
+
+[strategy_generator]
+# Moving-average crossover: fast in {5, 10, 20, 50}, slow in {50, 100, 150, 200}, fast < slow (15 settings)
+ma_fast = [5, 10, 20, 50]
+ma_slow = [50, 100, 150, 200]
+# Momentum: lookback in {20, 60, 120, 250} days (4 settings)
+mom_lookback = [20, 60, 120, 250]
+# Mean reversion: window in {20, 50}, threshold in {1, 1.5, 2} (6 settings)
+mr_window = [20, 50]
+mr_threshold = [1.0, 1.5, 2.0]
+
+[splits]
+origin_frequency = "quarterly"  # quarterly origin dates
+n_folds = 4
+test_block_years = 2
+# Fold layout (from Stage 1 SDD):
+# Fold 1: train origins years 3-8, gap year 9, test years 9-11
+# Fold 2: train years 3-10, gap year 11, test years 11-13
+# Fold 3: train years 3-12, gap year 13, test years 13-15
+# Fold 4: train years 3-14, gap year 15, test years 15-17
+
+[label]
+decayed_threshold = 0.5  # decayed flag: out-of-sample Sharpe < 0.5 * in-sample Sharpe
+
+[models]
+random_seed = 42
+n_bootstrap_samples = 1000
+n_seeds_gbt = 5
+# Gradient-boosted tree hyperparameter grid (small, documented)
+gbt_learning_rate = [0.05, 0.1]
+gbt_max_depth = [3, 5]
+gbt_n_estimators = [100, 200]
+
+[paths]
+db_path = "data/capstone.db"
+raw_data_dir = "data/raw_prices"
+processed_data_dir = "data/processed"
+model_dir = "models"
+report_dir = "reports"
+
+[versioning]
+feature_schema_version = 1
+label_version = 1
+split_id = "v1"

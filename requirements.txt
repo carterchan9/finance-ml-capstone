@@ -1,0 +1,25 @@
+# Finance ML Capstone - Stage 1 Dependencies
+# Pinned versions for reproducibility (per System SDD)
+
+# Data and numerics
+pandas==2.2.2
+numpy==1.26.4
+scipy==1.13.0
+
+# Models
+scikit-learn==1.5.0
+
+# Price data
+yfinance==0.2.47
+
+# Configuration
+# tomllib is in stdlib (Python 3.11+)
+
+# Tests
+pytest==8.3.2
+
+# Lint and format
+ruff==0.6.5
+
+# Plots
+matplotlib==3.9.1
