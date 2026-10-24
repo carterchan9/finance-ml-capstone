@@ -5,9 +5,15 @@ Loads and parses config/stage1.toml into a typed dictionary.
 
 from __future__ import annotations
 
-import tomllib
+import sys
 from pathlib import Path
 from typing import Any
+
+# tomllib is stdlib in Python 3.11+; use tomli backport for older versions
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 
 def load_stage1_config(config_path: str = "config/stage1.toml") -> dict[str, Any]:
