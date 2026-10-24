@@ -18,15 +18,14 @@ def load_prices(db_path: str) -> pd.DataFrame:
     """Load prices from SQLite.
 
     Returns:
-        DataFrame with columns: date, ticker, close (adjusted).
+        DataFrame with columns: date, ticker, close (adjusted), indexed by date.
     """
     conn = sqlite3.connect(db_path)
     try:
-        df = pd.read_sql("SELECT date, ticker, close FROM prices", conn)
+        df = pd.read_sql("SELECT date, ticker, close FROM prices", conn, parse_dates=["date"])
     finally:
         conn.close()
-    df["date"] = pd.to_datetime(df["date"])
-    return df.sort_values(["ticker", "date"]).reset_index(drop=True)
+    return df.sort_values(["ticker", "date"]).set_index("date")
 
 
 def ma_crossover_signals(close: pd.Series, fast: int, slow: int) -> pd.Series:
@@ -187,7 +186,10 @@ def generate_strategies(config_path: str = "config/stage1.toml") -> int:
             if len(ticker_prices) < 200:  # need enough for slowest MA
                 continue
 
-            returns_dict = {"date": ticker_prices.index}
+            # Convert DatetimeIndex to ISO format strings for CSV compatibility
+            # Ensure datetime index, then format as ISO strings for CSV
+            dates = pd.to_datetime(ticker_prices.index)
+            returns_dict = {"date": dates.strftime("%Y-%m-%d")}
 
             # 1. MA Crossover
             for fast in ma_fast:
